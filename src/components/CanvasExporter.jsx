@@ -33,7 +33,10 @@ export default function CanvasExporter({
             <div>
               <h3 className="text-lg font-bold text-white">Đang Khởi Tạo & Render Video...</h3>
               <p className="text-xs text-slate-400 mt-1">
-                Hệ thống đang ghi hình các khung hình Canvas và mã hóa video MP4.
+                Hệ thống đang ghi hình các khung hình Canvas và mã hóa video.
+              </p>
+              <p className="text-[11px] text-cyan-400/80 mt-1 italic">
+                💡 Lưu ý: Hãy giữ tab trình duyệt mở để đảm bảo tốc độ xuất nhanh nhất.
               </p>
             </div>
 
@@ -49,6 +52,16 @@ export default function CanvasExporter({
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
+            </div>
+
+            {/* Cancel Button */}
+            <div className="pt-2">
+              <button
+                onClick={onClose}
+                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all"
+              >
+                Hủy Tiến Trình
+              </button>
             </div>
           </div>
         )}

@@ -25,6 +25,52 @@ export function easeOutBack(t) {
   return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
 }
 
+// Cache the last computed "auto-fit" font size so we don't re-run the
+// expensive measureText() loop on every single exported frame — the fitted
+// size only ever changes when the inputs that affect it change.
+let fontFitCache = { key: null, fontSize: null };
+
+function getFittedFontSize(ctx, config, rawLines, maxTextWidth, maxTextHeight) {
+  const key = [
+    config.captionText,
+    config.fontSize,
+    config.fontWeight,
+    config.fontFamily,
+    config.lineHeight,
+    maxTextWidth,
+    maxTextHeight
+  ].join('|');
+
+  if (fontFitCache.key === key) {
+    return fontFitCache.fontSize;
+  }
+
+  let effectiveFontSize = config.fontSize || 40;
+  const minFontSize = 10;
+
+  // Iteratively scale down font size until all lines fit within maxTextWidth and maxTextHeight
+  for (let fs = effectiveFontSize; fs >= minFontSize; fs -= 1) {
+    ctx.font = `${config.fontWeight || '700'} ${fs}px "${config.fontFamily || 'Inter'}", sans-serif`;
+    let fitsWidth = true;
+    for (const line of rawLines) {
+      if (ctx.measureText(line).width > maxTextWidth) {
+        fitsWidth = false;
+        break;
+      }
+    }
+    const testLineHeight = fs * (config.lineHeight || 1.15);
+    const totalH = rawLines.length * testLineHeight;
+    if (fitsWidth && totalH <= maxTextHeight) {
+      effectiveFontSize = fs;
+      break;
+    }
+    effectiveFontSize = fs;
+  }
+
+  fontFitCache = { key, fontSize: effectiveFontSize };
+  return effectiveFontSize;
+}
+
 /**
  * Calculates current animation transform values (opacity, scale, offsetX, offsetY, glitchOffset)
  */
@@ -53,7 +99,7 @@ export function getAnimationState(currentTime, config, options = {}) {
   let glitchRgb = 0;
 
   // 1. Entrance Phase
-  if (elapsed < entranceSpeed && entranceSpeed > 0) {
+  if (elapsed < entranceSpeed && entranceSpeed > 0 && entranceAnimation !== 'none') {
     const progress = Math.min(1, elapsed / entranceSpeed);
     
     if (entranceAnimation === 'fade') {
@@ -71,7 +117,7 @@ export function getAnimationState(currentTime, config, options = {}) {
     }
   } 
   // 2. Exit Phase
-  else if (remaining < exitSpeed && exitSpeed > 0) {
+  else if (remaining < exitSpeed && exitSpeed > 0 && exitAnimation !== 'none') {
     const progress = Math.min(1, remaining / exitSpeed); // 1 down to 0
     
     if (exitAnimation === 'fade') {
@@ -220,27 +266,7 @@ export function renderCanvasFrame(ctx, canvasWidth, canvasHeight, videoElement, 
     const maxTextHeight = Math.max(30, innerH - 16);
 
     const rawLines = (config.captionText || 'Caption here').split('\n');
-    let effectiveFontSize = config.fontSize || 40;
-    const minFontSize = 10;
-
-    // Iteratively scale down font size until all lines fit within maxTextWidth and maxTextHeight
-    for (let fs = effectiveFontSize; fs >= minFontSize; fs -= 1) {
-      ctx.font = `${config.fontWeight || '700'} ${fs}px "${config.fontFamily || 'Inter'}", sans-serif`;
-      let fitsWidth = true;
-      for (const line of rawLines) {
-        if (ctx.measureText(line).width > maxTextWidth) {
-          fitsWidth = false;
-          break;
-        }
-      }
-      const testLineHeight = fs * (config.lineHeight || 1.15);
-      const totalH = rawLines.length * testLineHeight;
-      if (fitsWidth && totalH <= maxTextHeight) {
-        effectiveFontSize = fs;
-        break;
-      }
-      effectiveFontSize = fs;
-    }
+    const effectiveFontSize = getFittedFontSize(ctx, config, rawLines, maxTextWidth, maxTextHeight);
 
     ctx.font = `${config.fontWeight || '700'} ${effectiveFontSize}px "${config.fontFamily || 'Inter'}", sans-serif`;
     ctx.textAlign = config.textAlign || 'left';
@@ -261,6 +287,14 @@ export function renderCanvasFrame(ctx, canvasWidth, canvasHeight, videoElement, 
         ctx.shadowOffsetY = 2;
       } else {
         ctx.shadowColor = 'transparent';
+      }
+
+      // Text Stroke (Nét viền chữ)
+      if (config.textStrokeWidth && config.textStrokeWidth > 0) {
+        ctx.strokeStyle = config.textStrokeColor || '#ffffff';
+        ctx.lineWidth = config.textStrokeWidth;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(line, textX, currentY);
       }
 
       ctx.fillStyle = offsetColor || config.textColor || '#000000';

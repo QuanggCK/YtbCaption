@@ -31,52 +31,52 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-full overflow-hidden">
       {/* Tab Navigation Header */}
-      <div className="flex border-b border-slate-800 bg-slate-950/60 p-1.5 gap-1 overflow-x-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 border-b border-slate-800 bg-slate-950/60 p-2">
         <button
           onClick={() => setActiveTab('text')}
-          className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
             activeTab === 'text'
               ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              : 'text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-800/50'
           }`}
         >
-          <Type className="w-3.5 h-3.5" />
+          <Type className="w-3.5 h-3.5 shrink-0" />
           <span>Văn Bản</span>
         </button>
 
         <button
           onClick={() => setActiveTab('badge')}
-          className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
             activeTab === 'badge'
               ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              : 'text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-800/50'
           }`}
         >
-          <Layout className="w-3.5 h-3.5" />
+          <Layout className="w-3.5 h-3.5 shrink-0" />
           <span>Khung Banner</span>
         </button>
 
         <button
           onClick={() => setActiveTab('avatar')}
-          className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
             activeTab === 'avatar'
               ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              : 'text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-800/50'
           }`}
         >
-          <User className="w-3.5 h-3.5" />
+          <User className="w-3.5 h-3.5 shrink-0" />
           <span>Avatar Logo</span>
         </button>
 
         <button
           onClick={() => setActiveTab('anim')}
-          className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
             activeTab === 'anim'
               ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              : 'text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-800/50'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+          <Sparkles className="w-3.5 h-3.5 shrink-0 text-yellow-400" />
           <span>Hiệu Ứng</span>
         </button>
       </div>
@@ -86,6 +86,11 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
         {/* ================= TAB 1: TEXT & FONT ================= */}
         {activeTab === 'text' && (
           <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
+              <Type className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-sm font-bold text-white">Văn Bản & Font Chữ</h3>
+            </div>
+
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1.5">
                 Nội dung dòng chữ (Hỗ trợ nhiều dòng):
@@ -99,7 +104,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
                   Kiểu Font chữ:
@@ -135,7 +140,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
             </div>
 
-            <div>
+            <div className="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-slate-300 font-medium">Kích thước chữ (Font Size):</span>
                 <span className="font-mono text-cyan-400 font-bold">{config.fontSize}px</span>
@@ -150,7 +155,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
                   Màu chữ:
@@ -187,13 +192,58 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                 </button>
               </div>
             </div>
+
+            <div className="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3 space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Độ dày viền chữ (Text Stroke):</span>
+                  <span className="font-mono text-cyan-400 font-bold">
+                    {config.textStrokeWidth > 0 ? `${config.textStrokeWidth}px` : 'Tắt'}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={10}
+                  step={0.5}
+                  value={config.textStrokeWidth || 0}
+                  onChange={(e) => updateConfig('textStrokeWidth', parseFloat(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div className={config.textStrokeWidth > 0 ? '' : 'opacity-40 pointer-events-none'}>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Màu viền chữ:
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="color"
+                    value={config.textStrokeColor || '#ffffff'}
+                    onChange={(e) => updateConfig('textStrokeColor', e.target.value)}
+                    className="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer p-0"
+                  />
+                  <input
+                    type="text"
+                    value={config.textStrokeColor || '#ffffff'}
+                    onChange={(e) => updateConfig('textStrokeColor', e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-mono text-slate-200"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* ================= TAB 2: BANNER BADGE STYLE ================= */}
         {activeTab === 'badge' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
+              <Layout className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-sm font-bold text-white">Khung Banner</h3>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
                   Màu khung viền (Border):
@@ -235,37 +285,39 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Độ dày khung viền (Border Width):</span>
-                <span className="font-mono text-cyan-400 font-bold">{config.borderWidth}px</span>
+            <div className="space-y-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Độ dày khung viền (Border Width):</span>
+                  <span className="font-mono text-cyan-400 font-bold">{config.borderWidth}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={1}
+                  max={20}
+                  value={config.borderWidth}
+                  onChange={(e) => updateConfig('borderWidth', parseInt(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
               </div>
-              <input
-                type="range"
-                min={1}
-                max={20}
-                value={config.borderWidth}
-                onChange={(e) => updateConfig('borderWidth', parseInt(e.target.value))}
-                className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-              />
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Độ bo góc khung (Border Radius):</span>
+                  <span className="font-mono text-cyan-400 font-bold">{config.borderRadius}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={50}
+                  value={config.borderRadius}
+                  onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
+              </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Độ bo góc khung (Border Radius):</span>
-                <span className="font-mono text-cyan-400 font-bold">{config.borderRadius}px</span>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={50}
-                value={config.borderRadius}
-                onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
-                className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-300 font-medium">Chiều rộng (Width):</span>
@@ -339,6 +391,11 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
         {/* ================= TAB 3: AVATAR LOGO ================= */}
         {activeTab === 'avatar' && (
           <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
+              <User className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-sm font-bold text-white">Avatar / Logo</h3>
+            </div>
+
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1.5">
                 Tải ảnh Logo / Avatar đại diện:
@@ -357,7 +414,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </label>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
                   Hình dạng Avatar:
@@ -393,45 +450,52 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Kích thước Avatar:</span>
-                <span className="font-mono text-cyan-400 font-bold">{config.avatarSize}px</span>
+            <div className="space-y-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Kích thước Avatar:</span>
+                  <span className="font-mono text-cyan-400 font-bold">{config.avatarSize}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={80}
+                  max={220}
+                  value={config.avatarSize}
+                  onChange={(e) => updateConfig('avatarSize', parseInt(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
               </div>
-              <input
-                type="range"
-                min={80}
-                max={220}
-                value={config.avatarSize}
-                onChange={(e) => updateConfig('avatarSize', parseInt(e.target.value))}
-                className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-              />
-            </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Khoảng cách đè khung (Overlap Offset):</span>
-                <span className="font-mono text-cyan-400 font-bold">{config.avatarOverlap}px</span>
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Khoảng cách đè khung (Overlap Offset):</span>
+                  <span className="font-mono text-cyan-400 font-bold">{config.avatarOverlap}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={100}
+                  value={config.avatarOverlap}
+                  onChange={(e) => updateConfig('avatarOverlap', parseInt(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
               </div>
-              <input
-                type="range"
-                min={10}
-                max={100}
-                value={config.avatarOverlap}
-                onChange={(e) => updateConfig('avatarOverlap', parseInt(e.target.value))}
-                className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-              />
             </div>
           </div>
         )}
 
-        {/* ================= TAB 4: ANIMATION CONTROLS (Fade, Bounce, Glitch) ================= */}
+        {/* ================= TAB 4: ANIMATION CONTROLS (None, Fade, Bounce, Glitch) ================= */}
         {activeTab === 'anim' && (
           <div className="space-y-5">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <h3 className="text-sm font-bold text-white">Hiệu Ứng Chuyển Động</h3>
+            </div>
+
             <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 flex items-start space-x-2.5 text-xs text-cyan-300">
               <Zap className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <span>
-                Hệ thống hỗ trợ 3 kiểu hiệu ứng chính độc đáo: <strong>Fade</strong> (Mờ dần), <strong>Bounce</strong> (Bật nảy) và <strong>Glitch</strong> (Ma trận số / Chromatic aberration).
+                Chọn <strong>Không Hiệu Ứng</strong> nếu muốn caption hiện/ẩn tức thì (không animation) — hữu ích khi cần video render nhanh và mượt hơn. Ngoài ra hệ thống hỗ trợ 3 kiểu hiệu ứng: <strong>Fade</strong> (Mờ dần), <strong>Bounce</strong> (Bật nảy) và <strong>Glitch</strong> (Ma trận số / Chromatic aberration).
               </span>
             </div>
 
@@ -440,8 +504,9 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               <label className="block text-xs font-semibold text-slate-200 mb-2">
                 Hiệu ứng Xuất hiện (Entrance Animation):
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
+                  { id: 'none', name: 'Không Hiệu Ứng' },
                   { id: 'fade', name: 'Fade (Mờ Dần)' },
                   { id: 'bounce', name: 'Bounce (Nảy Elastic)' },
                   { id: 'glitch', name: 'Glitch (Cyber Ma Trận)' }
@@ -469,8 +534,9 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               <label className="block text-xs font-semibold text-slate-200 mb-2">
                 Hiệu ứng Biến mất (Exit Animation):
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
+                  { id: 'none', name: 'Không Hiệu Ứng' },
                   { id: 'fade', name: 'Fade (Mờ Dần)' },
                   { id: 'bounce', name: 'Bounce (Thu Nhỏ)' },
                   { id: 'glitch', name: 'Glitch (Biến Mất Digital)' }
@@ -493,9 +559,9 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
             </div>
 
-            {/* Speeds */}
+            {/* Speeds — disabled/greyed out when the matching animation is 'none' since speed doesn't apply */}
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div>
+              <div className={config.entranceAnimation === 'none' ? 'opacity-40 pointer-events-none' : ''}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-300 font-medium">Tốc độ xuất hiện:</span>
                   <span className="font-mono text-cyan-400 font-bold">{config.entranceSpeed}s</span>
@@ -506,12 +572,13 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                   max={2.5}
                   step={0.1}
                   value={config.entranceSpeed}
+                  disabled={config.entranceAnimation === 'none'}
                   onChange={(e) => updateConfig('entranceSpeed', parseFloat(e.target.value))}
                   className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
                 />
               </div>
 
-              <div>
+              <div className={config.exitAnimation === 'none' ? 'opacity-40 pointer-events-none' : ''}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-300 font-medium">Tốc độ biến mất:</span>
                   <span className="font-mono text-cyan-400 font-bold">{config.exitSpeed}s</span>
@@ -522,6 +589,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                   max={2.5}
                   step={0.1}
                   value={config.exitSpeed}
+                  disabled={config.exitAnimation === 'none'}
                   onChange={(e) => updateConfig('exitSpeed', parseFloat(e.target.value))}
                   className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
                 />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Video, Download, Sparkles, RefreshCw } from 'lucide-react';
 
-export default function Header({ onExport, isExporting, onResetPresets }) {
+export default function Header({ onExport, isExporting, onResetConfig }) {
   return (
     <header className="h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
       {/* Brand Logo & Title */}
@@ -23,12 +23,12 @@ export default function Header({ onExport, isExporting, onResetPresets }) {
       {/* Header Actions */}
       <div className="flex items-center space-x-3">
         <button
-          onClick={onResetPresets}
+          onClick={onResetConfig}
           className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-all"
           title="Khôi phục cài đặt mặc định"
         >
           <RefreshCw className="w-4 h-4" />
-          <span className="hidden sm:inline">Mẫu mặc định</span>
+          <span className="hidden sm:inline">Đặt lại mặc định</span>
         </button>
 
         <button
