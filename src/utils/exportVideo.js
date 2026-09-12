@@ -90,7 +90,19 @@ async function exportViaWebCodecs({ canvasRef, videoRef, avatarImgRef, config, o
     }
   }
 
-  const hasAudio = !!audioBuffer;
+  let hasAudio = !!audioBuffer;
+  if (hasAudio) {
+    const audioSupport = await AudioEncoder.isConfigSupported({
+      codec: 'mp4a.40.2',
+      sampleRate: audioBuffer.sampleRate,
+      numberOfChannels: audioBuffer.numberOfChannels,
+      bitrate: 128000,
+    });
+    if (!audioSupport.supported) {
+      console.warn('AAC audio encoding not supported here, exporting video-only.');
+      hasAudio = false;
+    }
+  }
 
   const muxer = new Muxer({
     target: new ArrayBufferTarget(),
@@ -101,30 +113,38 @@ async function exportViaWebCodecs({ canvasRef, videoRef, avatarImgRef, config, o
     fastStart: 'in-memory',
   });
 
-  const videoEncoder = new VideoEncoder({
-    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-    error: (e) => console.error('Video encode error:', e),
-  });
-  videoEncoder.configure({
+  const videoEncoderConfig = {
     codec: 'avc1.42001f', // H.264 Baseline — broadly compatible
     width,
     height,
     bitrate: estimateBitrate(width, height, fps),
     framerate: fps,
+  };
+
+  const videoSupport = await VideoEncoder.isConfigSupported(videoEncoderConfig);
+  if (!videoSupport.supported) {
+    throw new Error('Trình duyệt không hỗ trợ mã hóa H.264 qua WebCodecs');
+  }
+
+  const videoEncoder = new VideoEncoder({
+    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+    error: (e) => console.error('Video encode error:', e),
   });
+  videoEncoder.configure(videoEncoderConfig);
 
   let audioEncoder = null;
   if (hasAudio) {
-    audioEncoder = new AudioEncoder({
-      output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
-      error: (e) => console.error('Audio encode error:', e),
-    });
-    audioEncoder.configure({
+    const audioEncoderConfig = {
       codec: 'mp4a.40.2', // AAC-LC
       sampleRate: audioBuffer.sampleRate,
       numberOfChannels: audioBuffer.numberOfChannels,
       bitrate: 128000,
+    };
+    audioEncoder = new AudioEncoder({
+      output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+      error: (e) => console.error('Audio encode error:', e),
     });
+    audioEncoder.configure(audioEncoderConfig);
   }
 
   const cleanupVideoEl = () => {
@@ -207,6 +227,11 @@ async function exportViaWebCodecs({ canvasRef, videoRef, avatarImgRef, config, o
       onProgress(100);
       muxer.finalize();
       const { buffer } = muxer.target;
+
+      if (!buffer || buffer.byteLength === 0) {
+        throw new Error('File xuất ra rỗng (0 KB) — trình duyệt có thể không hỗ trợ mã hóa H.264/AAC ổn định.');
+      }
+
       const blob = new Blob([buffer], { type: 'video/mp4' });
       const url = URL.createObjectURL(blob);
       onComplete({ url, blob, filename: 'ytb_caption_export.mp4' });
@@ -271,9 +296,13 @@ async function exportViaMediaRecorder({ canvasRef, videoRef, avatarImgRef, confi
     if (audioStream) combinedTracks.push(...audioStream.getAudioTracks());
     const recordingStream = new MediaStream(combinedTracks);
 
+    // NOTE: intentionally NOT offering 'video/mp4' here. MediaRecorder reports it as
+    // "supported" in current Chrome, but recording a *combined* stream (canvas video
+    // track + a foreign audio track pulled from the <video> element) into an MP4
+    // container frequently produces a completely empty (0 byte) file — a known
+    // MediaRecorder limitation. WebM recording of combined streams is reliable, so we
+    // stick to it here; a real .mp4 is produced by the WebCodecs path above instead.
     const candidateMimeTypes = [
-      'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
-      'video/mp4',
       'video/webm;codecs=vp9,opus',
       'video/webm;codecs=vp8,opus',
       'video/webm',
@@ -301,6 +330,14 @@ async function exportViaMediaRecorder({ canvasRef, videoRef, avatarImgRef, confi
       if (cancelled) return;
       const actualType = mimeType || 'video/webm';
       const blob = new Blob(recordedChunks, { type: actualType });
+
+      if (blob.size === 0) {
+        if (onError) {
+          onError(new Error('File xuất ra rỗng (0 KB). Hãy thử lại hoặc dùng trình duyệt Chrome/Edge bản mới nhất.'));
+        }
+        return;
+      }
+
       const url = URL.createObjectURL(blob);
       const ext = actualType.includes('mp4') ? 'mp4' : 'webm';
       onComplete({ url, blob, filename: `ytb_caption_export.${ext}` });
