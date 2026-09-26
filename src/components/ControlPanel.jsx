@@ -240,13 +240,73 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
           <div className="space-y-4">
             <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
               <Layout className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-bold text-white">Khung Banner</h3>
+              <h3 className="text-sm font-bold text-white">Kiểu Khung Banner & Thiết Kế</h3>
+            </div>
+
+            {/* Frame Style Switcher */}
+            <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
+              <label className="block text-xs font-semibold text-slate-200">
+                Chọn Kiểu Khung Banner (Frame Style):
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => updateConfig('frameStyle', 'splitBracket')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    (config.frameStyle || 'splitBracket') === 'splitBracket'
+                      ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold ring-2 ring-cyan-500/20'
+                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-cyan-300">Khung Góc Split 🎵</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">2 góc đối xứng tách/gập (Như ảnh mẫu)</p>
+                </button>
+
+                <button
+                  onClick={() => updateConfig('frameStyle', 'classic')}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    config.frameStyle === 'classic'
+                      ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold ring-2 ring-cyan-500/20'
+                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-cyan-300">Banner Bo Góc 🏷️</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Badge bo tròn cổ điển có Avatar</p>
+                </button>
+              </div>
+
+              {/* Presets Quick Apply */}
+              <div className="pt-2 flex gap-2">
+                <button
+                  onClick={() => {
+                    setConfig((prev) => ({
+                      ...prev,
+                      frameStyle: 'splitBracket',
+                      captionText: 'Music Playing:',
+                      fontFamily: 'Oswald',
+                      fontSize: 48,
+                      fontWeight: '700',
+                      borderColor: '#0066ff',
+                      bgColor: 'rgba(230, 230, 230, 0.85)',
+                      textColor: '#000000',
+                      borderWidth: 10,
+                      entranceAnimation: 'split',
+                      exitAnimation: 'fold',
+                      entranceSpeed: 0.8,
+                      exitSpeed: 0.6,
+                      showAvatar: false
+                    }));
+                  }}
+                  className="flex-1 py-2 px-2.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 text-[11px] font-semibold flex items-center justify-center space-x-1 transition-all"
+                >
+                  <span>✨ Áp dụng Mẫu Music Playing (Oswald)</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Màu khung viền (Border):
+                  Màu khung góc/viền:
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
@@ -271,7 +331,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                 <div className="flex items-center space-x-2">
                   <input
                     type="color"
-                    value={config.bgColor}
+                    value={config.bgColor.startsWith('#') ? config.bgColor : '#dcdcdc'}
                     onChange={(e) => updateConfig('bgColor', e.target.value)}
                     className="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer p-0"
                   />
@@ -288,33 +348,35 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
             <div className="space-y-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Độ dày khung viền (Border Width):</span>
+                  <span className="text-slate-300 font-medium">Độ dày góc viền (Border Width):</span>
                   <span className="font-mono text-cyan-400 font-bold">{config.borderWidth}px</span>
                 </div>
                 <input
                   type="range"
-                  min={1}
-                  max={20}
+                  min={2}
+                  max={24}
                   value={config.borderWidth}
                   onChange={(e) => updateConfig('borderWidth', parseInt(e.target.value))}
                   className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
                 />
               </div>
 
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-300 font-medium">Độ bo góc khung (Border Radius):</span>
-                  <span className="font-mono text-cyan-400 font-bold">{config.borderRadius}px</span>
+              {config.frameStyle === 'classic' && (
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-300 font-medium">Độ bo góc khung (Border Radius):</span>
+                    <span className="font-mono text-cyan-400 font-bold">{config.borderRadius}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={50}
+                    value={config.borderRadius}
+                    onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
+                    className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={50}
-                  value={config.borderRadius}
-                  onChange={(e) => updateConfig('borderRadius', parseInt(e.target.value))}
-                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-                />
-              </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
@@ -394,6 +456,20 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
             <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
               <User className="w-4 h-4 text-cyan-400" />
               <h3 className="text-sm font-bold text-white">Avatar / Logo</h3>
+            </div>
+
+            <div className="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <span className="text-xs font-semibold text-slate-200">Hiển thị Avatar cùng với khung:</span>
+              <button
+                onClick={() => updateConfig('showAvatar', !config.showAvatar)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  config.showAvatar
+                    ? 'bg-cyan-500 text-white'
+                    : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                {config.showAvatar ? 'Bật Avatar' : 'Ẩn Avatar'}
+              </button>
             </div>
 
             <div>
@@ -484,7 +560,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
           </div>
         )}
 
-        {/* ================= TAB 4: ANIMATION CONTROLS (None, Fade, Bounce, Glitch) ================= */}
+        {/* ================= TAB 4: ANIMATION CONTROLS (None, Fade, Bounce, Glitch, Split, Fold) ================= */}
         {activeTab === 'anim' && (
           <div className="space-y-5">
             <div className="flex items-center gap-2 pb-1 border-b border-slate-800/60">
@@ -495,7 +571,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
             <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 flex items-start space-x-2.5 text-xs text-cyan-300">
               <Zap className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <span>
-                Chọn <strong>Không Hiệu Ứng</strong> nếu muốn caption hiện/ẩn tức thì (không animation) — hữu ích khi cần video render nhanh và mượt hơn. Ngoài ra hệ thống hỗ trợ 3 kiểu hiệu ứng: <strong>Fade</strong> (Mờ dần), <strong>Bounce</strong> (Bật nảy) và <strong>Glitch</strong> (Ma trận số / Chromatic aberration).
+                Hệ thống hỗ trợ 5 kiểu hiệu ứng: <strong>Split/Fold</strong> (Tách từ ở giữa ra & Gập vào lại), <strong>Fade</strong> (Mờ dần), <strong>Bounce</strong> (Bật nảy) và <strong>Glitch</strong> (Ma trận số).
               </span>
             </div>
 
@@ -504,19 +580,20 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               <label className="block text-xs font-semibold text-slate-200 mb-2">
                 Hiệu ứng Xuất hiện (Entrance Animation):
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {[
-                  { id: 'none', name: 'Không Hiệu Ứng' },
-                  { id: 'fade', name: 'Fade (Mờ Dần)' },
+                  { id: 'split', name: '↔️ Tách Từ Ở Giữa (Split)' },
                   { id: 'bounce', name: 'Bounce (Nảy Elastic)' },
-                  { id: 'glitch', name: 'Glitch (Cyber Ma Trận)' }
+                  { id: 'fade', name: 'Fade (Mờ Dần)' },
+                  { id: 'glitch', name: 'Glitch (Cyber Ma Trận)' },
+                  { id: 'none', name: 'Không Hiệu Ứng' }
                 ].map((anim) => {
                   const selected = config.entranceAnimation === anim.id;
                   return (
                     <button
                       key={anim.id}
                       onClick={() => updateConfig('entranceAnimation', anim.id)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
                         selected
                           ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold ring-2 ring-cyan-500/20'
                           : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
@@ -534,19 +611,20 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               <label className="block text-xs font-semibold text-slate-200 mb-2">
                 Hiệu ứng Biến mất (Exit Animation):
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {[
-                  { id: 'none', name: 'Không Hiệu Ứng' },
-                  { id: 'fade', name: 'Fade (Mờ Dần)' },
+                  { id: 'fold', name: '↕️ Gập Vào Ở Giữa (Fold)' },
                   { id: 'bounce', name: 'Bounce (Thu Nhỏ)' },
-                  { id: 'glitch', name: 'Glitch (Biến Mất Digital)' }
+                  { id: 'fade', name: 'Fade (Mờ Dần)' },
+                  { id: 'glitch', name: 'Glitch (Biến Mất Digital)' },
+                  { id: 'none', name: 'Không Hiệu Ứng' }
                 ].map((anim) => {
                   const selected = config.exitAnimation === anim.id;
                   return (
                     <button
                       key={anim.id}
                       onClick={() => updateConfig('exitAnimation', anim.id)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
                         selected
                           ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold ring-2 ring-cyan-500/20'
                           : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'

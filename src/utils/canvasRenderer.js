@@ -114,6 +114,11 @@ export function getAnimationState(currentTime, config, options = {}) {
       offsetX = (Math.random() - 0.5) * 16 * (1 - progress);
       offsetY = (Math.random() - 0.5) * 8 * (1 - progress);
       scale = 1 + (Math.random() - 0.5) * 0.08 * (1 - progress);
+    } else if (entranceAnimation === 'split') {
+      // Xuất hiện từ ở giữa tách rộng ra 2 bên
+      opacity = Math.min(1, progress * 3);
+      const splitProgress = easeOutBack(progress);
+      return { visible: true, opacity, scale: 1, offsetX: 0, offsetY: 0, glitchRgb: 0, splitProgress };
     }
   } 
   // 2. Exit Phase
@@ -132,6 +137,11 @@ export function getAnimationState(currentTime, config, options = {}) {
       offsetX = (Math.random() - 0.5) * 20;
       offsetY = (Math.random() - 0.5) * 10;
       scale = 1 + (Math.random() - 0.5) * 0.1;
+    } else if (exitAnimation === 'fold') {
+      // Gập vào ở giữa lại
+      opacity = Math.min(1, progress * 2.5);
+      const splitProgress = Math.pow(progress, 1.8);
+      return { visible: true, opacity, scale: 1, offsetX: 0, offsetY: 0, glitchRgb: 0, splitProgress };
     }
   }
   // 3. Active Mid-Phase (Continuous Glitch effect option if enabled)
@@ -149,7 +159,8 @@ export function getAnimationState(currentTime, config, options = {}) {
     scale,
     offsetX,
     offsetY,
-    glitchRgb
+    glitchRgb,
+    splitProgress: 1
   };
 }
 
@@ -219,13 +230,160 @@ export function renderCanvasFrame(ctx, canvasWidth, canvasHeight, videoElement, 
   const bannerWidth = config.bannerWidth || 540;
   const bannerHeight = config.bannerHeight || 140;
   const borderRadius = config.borderRadius || 28;
-  const borderWidth = config.borderWidth || 8;
+  const borderWidth = config.borderWidth || 10;
   const avatarSize = config.avatarSize || 150;
-  
+  const frameStyle = config.frameStyle || 'classic';
+  const splitProgress = Math.max(0, anim.splitProgress !== undefined ? anim.splitProgress : 1);
+
+  // ================= STYLE A: SPLIT BRACKET FRAME (Khung Góc Tách / Gập như ảnh mẫu) =================
+  if (frameStyle === 'splitBracket') {
+    const drawBracketContent = (offsetColor = null, channelX = 0, channelY = 0) => {
+      ctx.save();
+      if (channelX !== 0 || channelY !== 0) {
+        ctx.translate(channelX, channelY);
+      }
+
+      const showAvatar = config.showAvatar && avatarImageElement;
+      const avatarOverlap = showAvatar ? (config.avatarOverlap || 50) : 0;
+      const bannerX = showAvatar ? avatarOverlap : 0;
+      const bannerY = showAvatar ? (avatarSize - bannerHeight) / 2 : 0;
+
+      const centerX = bannerX + bannerWidth / 2;
+      const centerY = bannerY + bannerHeight / 2;
+      const halfW = bannerWidth / 2;
+      const halfH = bannerHeight / 2;
+
+      const wDist = halfW * Math.min(1.05, splitProgress);
+      const hDist = halfH * Math.min(1.05, splitProgress);
+
+      const tlX = centerX - wDist;
+      const tlY = centerY - hDist;
+      const brX = centerX + wDist;
+      const brY = centerY + hDist;
+
+      // Inner background fill
+      if (config.bgColor && config.bgColor !== 'transparent' && wDist > 0 && hDist > 0) {
+        if (config.bgType === 'gradient') {
+          const grad = ctx.createLinearGradient(tlX, tlY, brX, brY);
+          grad.addColorStop(0, config.bgColor1 || '#38bdf8');
+          grad.addColorStop(1, config.bgColor2 || '#0284c7');
+          ctx.fillStyle = grad;
+        } else {
+          ctx.fillStyle = config.bgColor;
+        }
+        ctx.fillRect(tlX, tlY, Math.max(0, wDist * 2), Math.max(0, hDist * 2));
+      }
+
+      // Bracket Angle Corner Arms
+      const armW = Math.min(90, Math.max(40, bannerWidth * 0.22));
+      const armH = Math.min(70, Math.max(30, bannerHeight * 0.35));
+      const activeArmW = armW * Math.min(1, splitProgress * 1.4);
+      const activeArmH = armH * Math.min(1, splitProgress * 1.4);
+      const bColor = offsetColor || config.borderColor || '#0066ff';
+
+      ctx.fillStyle = bColor;
+
+      // 1. Top-Left Bracket Angle (┌)
+      ctx.fillRect(tlX, tlY, activeArmW, borderWidth);
+      ctx.fillRect(tlX, tlY, borderWidth, activeArmH);
+
+      // 2. Bottom-Right Bracket Angle (┘)
+      ctx.fillRect(brX - activeArmW, brY - borderWidth, activeArmW, borderWidth);
+      ctx.fillRect(brX - borderWidth, brY - activeArmH, borderWidth, activeArmH);
+
+      // 3. Optional 4-corners mode
+      if (config.bracketMode === '4corners') {
+        // Top-Right Bracket Angle (┐)
+        ctx.fillRect(brX - activeArmW, tlY, activeArmW, borderWidth);
+        ctx.fillRect(brX - borderWidth, tlY, borderWidth, activeArmH);
+
+        // Bottom-Left Bracket Angle (└)
+        ctx.fillRect(tlX, brY - borderWidth, activeArmW, borderWidth);
+        ctx.fillRect(tlX, brY - activeArmH, borderWidth, activeArmH);
+      }
+
+      // Render Text inside Split Clip Mask
+      if (wDist > 4 && hDist > 4) {
+        ctx.save();
+        ctx.beginPath();
+        const clipPad = borderWidth * 0.5;
+        ctx.rect(
+          tlX + clipPad,
+          tlY + clipPad,
+          Math.max(0, wDist * 2 - clipPad * 2),
+          Math.max(0, hDist * 2 - clipPad * 2)
+        );
+        ctx.clip();
+
+        const textPaddingLeft = showAvatar ? (avatarSize - avatarOverlap + 20) : 32;
+        const maxTextWidth = Math.max(50, bannerWidth - textPaddingLeft - 20);
+        const maxTextHeight = Math.max(30, bannerHeight - 20);
+
+        const rawLines = (config.captionText || 'Caption here').split('\n');
+        const effectiveFontSize = getFittedFontSize(ctx, config, rawLines, maxTextWidth, maxTextHeight);
+
+        ctx.font = `${config.fontWeight || '700'} ${effectiveFontSize}px "${config.fontFamily || 'Oswald'}", sans-serif`;
+        ctx.textAlign = config.textAlign || (showAvatar ? 'left' : 'left');
+        ctx.textBaseline = 'middle';
+
+        const lineHeight = effectiveFontSize * (config.lineHeight || 1.15);
+        const totalTextHeight = (rawLines.length - 1) * lineHeight;
+
+        const textX = showAvatar ? (bannerX + textPaddingLeft) : (bannerX + 36);
+        const textY = bannerY + (bannerHeight / 2);
+        let currentY = textY - (totalTextHeight / 2);
+
+        rawLines.forEach((line) => {
+          if (config.textGlow) {
+            ctx.shadowColor = config.shadowColor || 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = config.shadowBlur || 8;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+          } else {
+            ctx.shadowColor = 'transparent';
+          }
+
+          if (config.textStrokeWidth && config.textStrokeWidth > 0) {
+            ctx.strokeStyle = config.textStrokeColor || '#ffffff';
+            ctx.lineWidth = config.textStrokeWidth;
+            ctx.lineJoin = 'round';
+            ctx.strokeText(line, textX, currentY);
+          }
+
+          ctx.fillStyle = offsetColor || config.textColor || '#000000';
+          ctx.fillText(line, textX, currentY);
+          currentY += lineHeight;
+        });
+
+        ctx.restore();
+      }
+
+      ctx.restore();
+    };
+
+    if (anim.glitchRgb > 0) {
+      drawBracketContent('rgba(255, 0, 80, 0.7)', -anim.glitchRgb, 0);
+      drawBracketContent('rgba(0, 240, 255, 0.7)', anim.glitchRgb, 0);
+    }
+    drawBracketContent();
+    ctx.restore();
+    return;
+  }
+
+  // ================= STYLE B: CLASSIC ROUNDED BANNER =================
   // Banner starts at X offset to allow avatar overlap on left
   const avatarOverlap = config.avatarOverlap !== undefined ? config.avatarOverlap : 50;
   const bannerX = avatarOverlap;
   const bannerY = (avatarSize - bannerHeight) / 2;
+
+  // Apply splitProgress transform for classic banner if split/fold active
+  if (splitProgress < 1) {
+    const cX = bannerX + bannerWidth / 2;
+    const cY = bannerY + bannerHeight / 2;
+    ctx.translate(cX, cY);
+    ctx.scale(splitProgress, Math.max(0.05, splitProgress));
+    ctx.translate(-cX, -cY);
+  }
 
   // Render function for Banner & Text
   const drawBannerContent = (offsetColor = null, channelX = 0, channelY = 0) => {

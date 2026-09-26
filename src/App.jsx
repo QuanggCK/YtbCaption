@@ -8,9 +8,9 @@ import { exportVideoTrack } from './utils/exportVideo';
 
 const DEFAULT_CONFIG = {
   presetId: 'custom',
-  captionText: 'Caption\nhere',
-  fontFamily: 'Inter',
-  fontSize: 44,
+  captionText: 'Music Playing:',
+  fontFamily: 'Oswald',
+  fontSize: 48,
   fontWeight: '700',
   lineHeight: 1.15,
   textColor: '#000000',
@@ -18,13 +18,15 @@ const DEFAULT_CONFIG = {
   textStrokeWidth: 0,
   textStrokeColor: '#ffffff',
 
-  // Banner & Border
-  borderColor: '#00e5ff',
-  borderWidth: 8,
-  borderRadius: 36,
-  bgColor: '#44b6e5',
+  // Frame Style & Border
+  frameStyle: 'splitBracket', // 'classic' | 'splitBracket'
+  bracketMode: '2corners', // '2corners' | '4corners'
+  borderColor: '#0066ff',
+  borderWidth: 10,
+  borderRadius: 0,
+  bgColor: 'rgba(230, 230, 230, 0.85)',
   bgType: 'solid',
-  bannerWidth: 540,
+  bannerWidth: 560,
   bannerHeight: 140,
 
   // Positioning
@@ -33,16 +35,17 @@ const DEFAULT_CONFIG = {
   scale: 1,
 
   // Avatar
+  showAvatar: false,
   avatarSrc: '/sample_avatar.jpg',
   avatarShape: 'circle',
   avatarSize: 150,
-  avatarBorderColor: '#00e5ff',
+  avatarBorderColor: '#0066ff',
   avatarBorderWidth: 4,
   avatarOverlap: 50,
 
-  // Animations (Fade, Bounce, Glitch)
-  entranceAnimation: 'bounce',
-  exitAnimation: 'fade',
+  // Animations (Fade, Bounce, Glitch, Split, Fold)
+  entranceAnimation: 'split',
+  exitAnimation: 'fold',
   entranceSpeed: 0.8,
   exitSpeed: 0.6,
 
