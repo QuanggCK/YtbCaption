@@ -322,15 +322,28 @@ export function renderCanvasFrame(ctx, canvasWidth, canvasHeight, videoElement, 
         const rawLines = (config.captionText || 'Caption here').split('\n');
         const effectiveFontSize = getFittedFontSize(ctx, config, rawLines, maxTextWidth, maxTextHeight);
 
+        const alignMode = config.textAlign || (showAvatar ? 'left' : 'center');
         ctx.font = `${config.fontWeight || '700'} ${effectiveFontSize}px "${config.fontFamily || 'Oswald'}", sans-serif`;
-        ctx.textAlign = config.textAlign || (showAvatar ? 'left' : 'left');
+        ctx.textAlign = alignMode;
         ctx.textBaseline = 'middle';
 
         const lineHeight = effectiveFontSize * (config.lineHeight || 1.15);
         const totalTextHeight = (rawLines.length - 1) * lineHeight;
 
-        const textX = showAvatar ? (bannerX + textPaddingLeft) : (bannerX + 36);
-        const textY = bannerY + (bannerHeight / 2);
+        let textX = centerX;
+        if (showAvatar) {
+          const availLeft = bannerX + textPaddingLeft;
+          const availWidth = bannerWidth - textPaddingLeft;
+          if (alignMode === 'center') textX = availLeft + availWidth / 2;
+          else if (alignMode === 'right') textX = availLeft + availWidth - 20;
+          else textX = availLeft;
+        } else {
+          if (alignMode === 'right') textX = centerX + halfW - 36;
+          else if (alignMode === 'left') textX = centerX - halfW + 36;
+          else textX = centerX;
+        }
+
+        const textY = centerY;
         let currentY = textY - (totalTextHeight / 2);
 
         rawLines.forEach((line) => {

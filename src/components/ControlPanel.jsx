@@ -140,19 +140,46 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
             </div>
 
-            <div className="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Kích thước chữ (Font Size):</span>
-                <span className="font-mono text-cyan-400 font-bold">{config.fontSize}px</span>
+            <div className="bg-slate-950/40 border border-slate-800/60 rounded-xl p-3 space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-300 font-medium">Kích thước chữ (Font Size):</span>
+                  <span className="font-mono text-cyan-400 font-bold">{config.fontSize}px</span>
+                </div>
+                <input
+                  type="range"
+                  min={20}
+                  max={72}
+                  value={config.fontSize}
+                  onChange={(e) => updateConfig('fontSize', parseInt(e.target.value))}
+                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                />
               </div>
-              <input
-                type="range"
-                min={20}
-                max={72}
-                value={config.fontSize}
-                onChange={(e) => updateConfig('fontSize', parseInt(e.target.value))}
-                className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-              />
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Căn lề chữ (Text Alignment):
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'left', name: 'Căn Trái ⬅️' },
+                    { id: 'center', name: 'Căn Giữa ⏹️' },
+                    { id: 'right', name: 'Căn Phải ➡️' }
+                  ].map((align) => (
+                    <button
+                      key={align.id}
+                      onClick={() => updateConfig('textAlign', align.id)}
+                      className={`py-2 text-[11px] font-semibold rounded-lg border transition-all ${
+                        (config.textAlign || 'center') === align.id
+                          ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {align.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 bg-slate-950/40 border border-slate-800/60 rounded-xl p-3">
@@ -285,8 +312,9 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                       fontFamily: 'Oswald',
                       fontSize: 48,
                       fontWeight: '700',
+                      textAlign: 'center',
                       borderColor: '#0066ff',
-                      bgColor: 'rgba(230, 230, 230, 0.85)',
+                      bgColor: 'transparent',
                       textColor: '#000000',
                       borderWidth: 10,
                       entranceAnimation: 'split',
@@ -298,7 +326,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                   }}
                   className="flex-1 py-2 px-2.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 text-[11px] font-semibold flex items-center justify-center space-x-1 transition-all"
                 >
-                  <span>✨ Áp dụng Mẫu Music Playing (Oswald)</span>
+                  <span>✨ Áp dụng Mẫu Music Playing (Oswald + Chữ ở giữa)</span>
                 </button>
               </div>
             </div>
@@ -311,7 +339,7 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
                 <div className="flex items-center space-x-2">
                   <input
                     type="color"
-                    value={config.borderColor}
+                    value={config.borderColor || '#0066ff'}
                     onChange={(e) => updateConfig('borderColor', e.target.value)}
                     className="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer p-0"
                   />
@@ -325,15 +353,28 @@ export default function ControlPanel({ config, setConfig, onTriggerAnimationPrev
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Màu nền trong khung:
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-medium text-slate-300">
+                    Màu nền khung:
+                  </label>
+                  <button
+                    onClick={() => updateConfig('bgColor', config.bgColor === 'transparent' ? 'rgba(230,230,230,0.85)' : 'transparent')}
+                    className={`text-[10px] px-2 py-0.5 rounded border transition-all ${
+                      config.bgColor === 'transparent'
+                        ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500'
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}
+                  >
+                    {config.bgColor === 'transparent' ? '✓ Trong Suốt' : 'Bật Trong Suốt'}
+                  </button>
+                </div>
                 <div className="flex items-center space-x-2">
                   <input
                     type="color"
-                    value={config.bgColor.startsWith('#') ? config.bgColor : '#dcdcdc'}
+                    disabled={config.bgColor === 'transparent'}
+                    value={config.bgColor && config.bgColor.startsWith('#') ? config.bgColor : '#dcdcdc'}
                     onChange={(e) => updateConfig('bgColor', e.target.value)}
-                    className="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer p-0"
+                    className="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer p-0 disabled:opacity-40"
                   />
                   <input
                     type="text"
